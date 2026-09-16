@@ -1,0 +1,50 @@
+require("dotenv").config();
+
+const express = require("express");
+const mongoose = require("mongoose");
+const User = require("./models/User");
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "KF8 Backend is running"
+  });
+});
+
+app.get("/test-user-model", async (req, res) => {
+  try {
+    const userCount = await User.countDocuments();
+
+    res.json({
+      success: true,
+      message: "User model is working",
+      users: userCount
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "User model test failed"
+    });
+  }
+});
+
+async function startServer() {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+
+    console.log("MongoDB connected successfully");
+
+    app.listen(PORT, () => {
+      console.log(`KF8 Backend running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("MongoDB connection failed:", error.message);
+  }
+}
+
+startServer();
